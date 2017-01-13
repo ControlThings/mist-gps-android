@@ -15,10 +15,14 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import fi.ct.mist.mistnodeapi.Mist;
 import fi.ct.mist.mistnodeapi.api.mistNode.DeviceModel;
 import fi.ct.mist.mistnodeapi.api.mistNode.EndpointBoolean;
 import fi.ct.mist.mistnodeapi.api.mistNode.EndpointFloat;
+import fi.ct.mist.mistnodeapi.api.mistNode.EndpointInt;
 
 public class GpsService extends Service {
 
@@ -39,19 +43,23 @@ public class GpsService extends Service {
         }
     }
 
+    private int count = 0;
+
     @Override
     public void onCreate() {
         super.onCreate();
 
+        // Init Mist library
         mist = new Intent(this, Mist.class);
 
-        Toast.makeText(getApplicationContext(), "onBind: GpsService", Toast.LENGTH_SHORT).show();
-
+        // Create new Mist node
         DeviceModel model = new DeviceModel("GPS");
 
+        // Create new endpoints
         final EndpointFloat lon = new EndpointFloat("lon", "Longitude");
         final EndpointFloat lat = new EndpointFloat("lat", "Latitude");
         final EndpointFloat accuracy = new EndpointFloat("accuracy", "Accuracy");
+        final EndpointInt counter = new EndpointInt("counter", "Dymmy Counter");
 
         final EndpointBoolean enabled = new EndpointBoolean("enabled", "GPS enabled");
 
@@ -59,10 +67,8 @@ public class GpsService extends Service {
         enabled.setWritable(new EndpointBoolean.Writable() {
             @Override
             public void write(boolean b) {
+                // Handle write callback from Mist
                 enabled.update(b);
-                lon.update(-1);
-                lat.update(-2);
-                accuracy.update(-3);
             }
         });
 
@@ -70,17 +76,30 @@ public class GpsService extends Service {
         lon.setReadable(true);
         lat.setReadable(true);
         accuracy.setReadable(true);
+        counter.setReadable(true);
 
         enabled.addNext(lon);
         enabled.addNext(lat);
         enabled.addNext(accuracy);
+        enabled.addNext(counter);
         model.setRootEndpoint(enabled);
+
+        counter.update(0);
+
+        new Timer().scheduleAtFixedRate(new TimerTask(){
+            @Override
+            public void run(){
+                Log.i(TAG, "Tick...");
+                counter.update(++count);
+            }
+        },0,1000);
 
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
         // Define a listener that responds to location updates
         locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
+                // Update values to Mist
                 lon.update(location.getLongitude());
                 lat.update(location.getLatitude());
                 accuracy.update(location.getAccuracy());
@@ -124,3 +143,10 @@ public class GpsService extends Service {
         return mBinder;
     }
 }
+
+
+/*
+        Toast.makeText(getApplicationContext(), "onBind: GpsService", Toast.LENGTH_SHORT).show();
+
+
+ */
