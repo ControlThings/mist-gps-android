@@ -1,1 +1,1 @@
-include ':app', ':MistNodeApi-v0.6.0'
+include ':app', ':MistNodeApi'

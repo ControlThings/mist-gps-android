@@ -18,11 +18,11 @@ import android.widget.Toast;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import fi.ct.mist.mistnodeapi.Mist;
-import fi.ct.mist.mistnodeapi.api.mistNode.DeviceModel;
-import fi.ct.mist.mistnodeapi.api.mistNode.EndpointBoolean;
-import fi.ct.mist.mistnodeapi.api.mistNode.EndpointFloat;
-import fi.ct.mist.mistnodeapi.api.mistNode.EndpointInt;
+import mist.Mist;
+import mist.node.EndpointBoolean;
+import mist.node.EndpointFloat;
+import mist.node.EndpointInt;
+import mist.node.NodeModel;
 
 public class GpsService extends Service {
 
@@ -53,9 +53,9 @@ public class GpsService extends Service {
         mist = new Intent(this, Mist.class);
 
         // Create new Mist node
-        DeviceModel model = new DeviceModel("GPS");
+        NodeModel model = new NodeModel("GPS", this);
 
-        // Create new endpoints
+        // Create new endpoints (String id, String label)
         final EndpointFloat lon = new EndpointFloat("lon", "Longitude");
         final EndpointFloat lat = new EndpointFloat("lat", "Latitude");
         final EndpointFloat accuracy = new EndpointFloat("accuracy", "Accuracy");
@@ -83,8 +83,6 @@ public class GpsService extends Service {
         enabled.addNext(accuracy);
         enabled.addNext(counter);
         model.setRootEndpoint(enabled);
-
-        counter.update(0);
 
         new Timer().scheduleAtFixedRate(new TimerTask(){
             @Override
@@ -143,10 +141,3 @@ public class GpsService extends Service {
         return mBinder;
     }
 }
-
-
-/*
-        Toast.makeText(getApplicationContext(), "onBind: GpsService", Toast.LENGTH_SHORT).show();
-
-
- */
