@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -117,7 +116,6 @@ public class GpsService extends Service {
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
         } catch (SecurityException e) {
-            Toast.makeText(getApplicationContext(), "LocationListener security exception. "+e.toString(), Toast.LENGTH_SHORT).show();
             Log.e(TAG, "LocationListener security exception: " + e);
         }
 
@@ -126,8 +124,10 @@ public class GpsService extends Service {
 
     @Override
     public void onDestroy() {
+
         super.onDestroy();
         stopService(mist);
+
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling ActivityCompat#requestPermissions

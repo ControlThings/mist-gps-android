@@ -3,7 +3,6 @@ package fi.ct.mist.gps;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.Toast;
 
 public class Settings extends AppCompatActivity {
 
@@ -15,8 +14,11 @@ public class Settings extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         serviceIntent = new Intent(this, GpsService.class);
-        //serviceIntent.setAction("fi.ct.gps.service.GpsService");
         startService(serviceIntent);
-        Toast.makeText(getApplicationContext(), "startGpsService", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }
