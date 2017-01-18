@@ -13,5 +13,5 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="This activity is a dummy. It starts the and stops the actual Mist GPS service. This way you can control the state of the service. If you want the GPS service to go offline, simply close this activity from android recent applications menu. When you want it to come online, open this app from the icon or press play in Android Studio." />
+        android:text="This activity is a dummy. It starts and stops the actual Mist GPS service. This way you can control the state of the service. If you want the GPS service to go offline, simply close this activity from android recent applications menu. When you want it to come online, open this app from the icon or press play in Android Studio." />
 </RelativeLayout>

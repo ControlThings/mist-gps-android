@@ -58,7 +58,7 @@ public class GpsService extends Service {
         final EndpointFloat lon = new EndpointFloat("lon", "Longitude");
         final EndpointFloat lat = new EndpointFloat("lat", "Latitude");
         final EndpointFloat accuracy = new EndpointFloat("accuracy", "Accuracy");
-        final EndpointInt counter = new EndpointInt("counter", "Dymmy Counter");
+        final EndpointInt counter = new EndpointInt("counter", "Dummy Counter");
 
         final EndpointBoolean enabled = new EndpointBoolean("enabled", "GPS enabled");
 
@@ -117,6 +117,7 @@ public class GpsService extends Service {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
         } catch (SecurityException e) {
             Log.e(TAG, "LocationListener security exception: " + e);
+            //ActivityCompat.requestPermissions(getApplicationContext(), new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, 123);
         }
 
         startService(mist);
