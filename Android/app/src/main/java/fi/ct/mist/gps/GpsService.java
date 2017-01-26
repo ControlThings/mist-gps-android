@@ -26,21 +26,15 @@ import mist.node.NodeModel;
 public class GpsService extends Service {
 
     private Intent mist;
-    private final IBinder mBinder = new LocalBinder();
     LocationManager locationManager;
     LocationListener locationListener;
 
+    private EndpointFloat lon;
+    private EndpointFloat lat;
+    private EndpointFloat accuracy;
+    private EndpointInt counter;
+
     public static final String TAG = "GpsService";
-
-    public GpsService() {
-    }
-
-    public class LocalBinder extends Binder {
-        GpsService getService() {
-            // Return this instance of LocalService so clients can call public methods
-            return GpsService.this;
-        }
-    }
 
     private int count = 0;
 
@@ -55,10 +49,10 @@ public class GpsService extends Service {
         NodeModel model = new NodeModel("GPS", this);
 
         // Create new endpoints (String id, String label)
-        final EndpointFloat lon = new EndpointFloat("lon", "Longitude");
-        final EndpointFloat lat = new EndpointFloat("lat", "Latitude");
-        final EndpointFloat accuracy = new EndpointFloat("accuracy", "Accuracy");
-        final EndpointInt counter = new EndpointInt("counter", "Dummy Counter");
+        lon = new EndpointFloat("lon", "Longitude");
+        lat = new EndpointFloat("lat", "Latitude");
+        accuracy = new EndpointFloat("accuracy", "Accuracy");
+        counter = new EndpointInt("counter", "Dummy Counter");
 
         final EndpointBoolean enabled = new EndpointBoolean("enabled", "GPS enabled");
 
@@ -83,14 +77,22 @@ public class GpsService extends Service {
         enabled.addNext(counter);
         model.setRootEndpoint(enabled);
 
-        new Timer().scheduleAtFixedRate(new TimerTask(){
+        new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
-            public void run(){
+            public void run() {
                 Log.i(TAG, "Tick...");
                 counter.update(++count);
             }
-        },0,1000);
+        }, 0, 1000);
 
+        if (Permissions.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            onAccess();
+        }
+
+        startService(mist);
+    }
+
+    private void onAccess() {
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
         // Define a listener that responds to location updates
@@ -120,25 +122,20 @@ public class GpsService extends Service {
             //ActivityCompat.requestPermissions(getApplicationContext(), new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, 123);
         }
 
-        startService(mist);
     }
 
     @Override
     public void onDestroy() {
-
         super.onDestroy();
         stopService(mist);
-
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling ActivityCompat#requestPermissions
-            return;
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.removeUpdates(locationListener);
         }
-        locationManager.removeUpdates(locationListener);
+
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        return null;
     }
 }
