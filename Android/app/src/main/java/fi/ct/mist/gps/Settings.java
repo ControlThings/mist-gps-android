@@ -20,7 +20,7 @@ public class Settings extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         if (Permissions.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            permission = true;
+            startGpsService();
         } else {
             permisionId = Permissions.requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         }
