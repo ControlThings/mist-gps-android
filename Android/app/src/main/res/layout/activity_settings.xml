@@ -13,7 +13,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="This activity is a dummy. It starts and stops the actual Mist GPS service. This way you can control the state of the service. If you want the GPS service to go offline, simply close this activity from android recent applications menu. When you want it to come online, open this app from the icon or press play in Android Studio."
+        android:text="This is a simple sample service for demonstrating how to develop a Mist information source on Android.\n\nYou’re able to control the state of the GPS service.\n\nIf you launch this app, it will start reading the GPS and provides the information to Mist. (It requires that the GPS sensor is activated for apps in Android)\n\nIf you want to deactivate the GPS, simply kill this app by swiping it out from the recent applications Android menu."
         android:id="@+id/textView" />
 
 </RelativeLayout>
