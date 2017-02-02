@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
@@ -23,16 +24,17 @@ import mist.node.EndpointFloat;
 import mist.node.EndpointInt;
 import mist.node.NodeModel;
 
+
 public class GpsService extends Service {
 
     private Intent mist;
-    LocationManager locationManager;
+    LocationManager locationManager = null;
     LocationListener locationListener;
 
     private EndpointFloat lon;
     private EndpointFloat lat;
     private EndpointFloat accuracy;
-    private EndpointInt counter;
+    private EndpointBoolean enabled;
 
     public static final String TAG = "GpsService";
 
@@ -41,6 +43,7 @@ public class GpsService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
 
         // Init Mist library
         mist = new Intent(this, Mist.class);
@@ -52,38 +55,39 @@ public class GpsService extends Service {
         lon = new EndpointFloat("lon", "Longitude");
         lat = new EndpointFloat("lat", "Latitude");
         accuracy = new EndpointFloat("accuracy", "Accuracy");
-        counter = new EndpointInt("counter", "Dummy Counter");
-
-        final EndpointBoolean enabled = new EndpointBoolean("enabled", "GPS enabled");
+        enabled = new EndpointBoolean("enabled", "GPS enabled");
 
         enabled.setReadable(true);
+        enabled.update(false);
         enabled.setWritable(new EndpointBoolean.Writable() {
             @Override
-            public void write(boolean b) {
+            public void write(final boolean b) {
                 // Handle write callback from Mist
-                enabled.update(b);
+                new android.os.Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (Permissions.hasPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+                            if (b) {
+                                enableGps();
+                            } else {
+                                disableGps();
+                            }
+                        } else {
+                            enabled.update(false);
+                        }
+                    }
+                });
             }
         });
-
 
         lon.setReadable(true);
         lat.setReadable(true);
         accuracy.setReadable(true);
-        counter.setReadable(true);
 
         enabled.addNext(lon);
         enabled.addNext(lat);
         enabled.addNext(accuracy);
-        enabled.addNext(counter);
         model.setRootEndpoint(enabled);
-
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                Log.i(TAG, "Tick...");
-                counter.update(++count);
-            }
-        }, 0, 1000);
 
         if (Permissions.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
             onAccess();
@@ -92,7 +96,9 @@ public class GpsService extends Service {
         startService(mist);
     }
 
+
     private void onAccess() {
+        enabled.update(true);
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
         // Define a listener that responds to location updates
@@ -114,8 +120,18 @@ public class GpsService extends Service {
             }
         };
 
+
+
+
         // Register the listener with the Location Manager to receive location updates
         try {
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (location != null) {
+                lon.update(location.getLongitude());
+                lat.update(location.getLatitude());
+            } else {
+            }
+
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
         } catch (SecurityException e) {
             Log.e(TAG, "LocationListener security exception: " + e);
@@ -123,6 +139,17 @@ public class GpsService extends Service {
         }
 
     }
+
+    private void enableGps() throws SecurityException {
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        enabled.update(true);
+    }
+
+    private void disableGps() throws SecurityException {
+        locationManager.removeUpdates(locationListener);
+        enabled.update(false);
+    }
+
 
     @Override
     public void onDestroy() {
