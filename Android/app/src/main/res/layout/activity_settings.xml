@@ -16,4 +16,16 @@
         android:text="This is a simple sample service for demonstrating how to develop a Mist information source on Android.\n\nYou’re able to control the state of the GPS service.\n\nIf you launch this app, it will start reading the GPS and provides the information to Mist. (It requires that the GPS sensor is activated for apps in Android)\n\nIf you want to deactivate the GPS, simply kill this app by swiping it out from the recent applications Android menu."
         android:id="@+id/textView" />
 
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:gravity="center"
+        android:hint="Your name"
+        android:ems="10"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="34dp"
+        android:id="@+id/name" />
+
 </RelativeLayout>

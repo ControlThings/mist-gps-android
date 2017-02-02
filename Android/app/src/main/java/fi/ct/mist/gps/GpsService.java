@@ -2,8 +2,10 @@ package fi.ct.mist.gps;
 
 import android.Manifest;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -13,6 +15,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.util.Timer;
@@ -27,6 +30,8 @@ import mist.node.NodeModel;
 
 public class GpsService extends Service {
 
+    public static String GPS_Service = "gps_service_reciver";
+
     private Intent mist;
     LocationManager locationManager = null;
     LocationListener locationListener;
@@ -34,6 +39,7 @@ public class GpsService extends Service {
     private EndpointFloat lon;
     private EndpointFloat lat;
     private EndpointFloat accuracy;
+    private EndpointFloat name;
     private EndpointBoolean enabled;
 
     public static final String TAG = "GpsService";
@@ -44,6 +50,7 @@ public class GpsService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(GPS_Service));
 
         // Init Mist library
         mist = new Intent(this, Mist.class);
@@ -55,6 +62,7 @@ public class GpsService extends Service {
         lon = new EndpointFloat("lon", "Longitude");
         lat = new EndpointFloat("lat", "Latitude");
         accuracy = new EndpointFloat("accuracy", "Accuracy");
+        name = new EndpointFloat("name", "Alias");
         enabled = new EndpointBoolean("enabled", "GPS enabled");
 
         enabled.setReadable(true);
@@ -83,10 +91,12 @@ public class GpsService extends Service {
         lon.setReadable(true);
         lat.setReadable(true);
         accuracy.setReadable(true);
+        name.setReadable(true);
 
         enabled.addNext(lon);
         enabled.addNext(lat);
         enabled.addNext(accuracy);
+        enabled.addNext(name);
         model.setRootEndpoint(enabled);
 
         if (Permissions.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -121,8 +131,6 @@ public class GpsService extends Service {
         };
 
 
-
-
         // Register the listener with the Location Manager to receive location updates
         try {
             Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -150,6 +158,13 @@ public class GpsService extends Service {
         enabled.update(false);
     }
 
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String alias = intent.getStringExtra("name");
+            name.update(Float.parseFloat(alias));
+        }
+    };
 
     @Override
     public void onDestroy() {
@@ -158,7 +173,7 @@ public class GpsService extends Service {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationManager.removeUpdates(locationListener);
         }
-
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
 
     @Override
