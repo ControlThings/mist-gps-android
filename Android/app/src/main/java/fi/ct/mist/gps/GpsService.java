@@ -25,6 +25,7 @@ import mist.Mist;
 import mist.node.EndpointBoolean;
 import mist.node.EndpointFloat;
 import mist.node.EndpointInt;
+import mist.node.EndpointString;
 import mist.node.NodeModel;
 
 
@@ -39,7 +40,7 @@ public class GpsService extends Service {
     private EndpointFloat lon;
     private EndpointFloat lat;
     private EndpointFloat accuracy;
-    private EndpointFloat name;
+    private EndpointString name;
     private EndpointBoolean enabled;
 
     public static final String TAG = "GpsService";
@@ -62,7 +63,7 @@ public class GpsService extends Service {
         lon = new EndpointFloat("lon", "Longitude");
         lat = new EndpointFloat("lat", "Latitude");
         accuracy = new EndpointFloat("accuracy", "Accuracy");
-        name = new EndpointFloat("name", "Alias");
+        name = new EndpointString("name", "Alias");
         enabled = new EndpointBoolean("enabled", "GPS enabled");
 
         enabled.setReadable(true);
@@ -162,7 +163,7 @@ public class GpsService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String alias = intent.getStringExtra("name");
-            name.update(Float.parseFloat(alias));
+            name.update(alias);
         }
     };
 
