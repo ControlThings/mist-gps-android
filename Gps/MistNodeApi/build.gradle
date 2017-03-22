@@ -1,2 +1,2 @@
 configurations.maybeCreate("default")
-artifacts.add("default", file('MistNodeApi-v0.2.0-alpha-2-geb3d.aar'))
+artifacts.add("default", file('MistNodeApi-v0.2.0-alpha-6-g528b.aar'))
