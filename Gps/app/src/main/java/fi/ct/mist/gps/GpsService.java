@@ -47,6 +47,9 @@ public class GpsService extends Service {
 
     private int count = 0;
 
+    int minTime = 10*1000; /* milliseconds minimum between updates */
+    int minDist = 10; /* 10 meter change at minimum */
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -141,7 +144,7 @@ public class GpsService extends Service {
             } else {
             }
 
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDist, locationListener);
         } catch (SecurityException e) {
             Log.e(TAG, "LocationListener security exception: " + e);
             //ActivityCompat.requestPermissions(getApplicationContext(), new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, 123);
@@ -150,7 +153,7 @@ public class GpsService extends Service {
     }
 
     private void enableGps() throws SecurityException {
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDist, locationListener);
         enabled.update(true);
     }
 
