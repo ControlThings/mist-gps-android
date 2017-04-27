@@ -8,7 +8,7 @@ Example software for getting started with Mist Node development. It demonstrates
 * Wish - Peer-to-peer trustbased networking layer (https://mist.controlthings.fi/dist/Wish-v0.3.4.apk)
 * Mist - IoT layer for Wish (https://mist.controlthings.fi/dist/Mist-v0.4.0.apk)
 
-Download and install Wish and Mist.
+Download and install Wish and Mist on your phone.
 
 You need to create a user in the Mist application when you first start it up. Swipe to the Users-tab and click the plus-sign in the bottom right corner. Write a user name you want to use, and an identity will be generated for you.
 
