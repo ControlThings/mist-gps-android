@@ -1,5 +1,7 @@
 # Mist GPS for Android
 
+*This project is no longer maintained. Required dependencies may no longer be available.*
+
 Example software for getting started with Mist Node development. It demonstrates creating a Mist Node as an Android service.
 
 ## Prerequisites
